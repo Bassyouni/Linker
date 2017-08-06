@@ -12,6 +12,43 @@ class Message
 {
     private var _message:String!
     private var _userId:String!
+    private var _image: UIImage?
+    private var _imageUrl: String!
+    private var _userName: String!
+    
+    init(){}
+    
+    init(userName: String , message :String , imageUrl: String?) {
+        
+        self._userName = userName
+        self._message = message
+        
+        if imageUrl != nil
+        {
+            self._imageUrl = imageUrl
+        }
+        
+        self._userId = nil
+        self._image = nil
+    }
+    
+    var userName: String
+    {
+        set {_userName = newValue}
+        get {return _userName}
+    }
+    
+    var imageUrl: String?
+    {
+        set { _imageUrl = newValue }
+        get {return _imageUrl}
+    }
+    
+    var image: UIImage
+    {
+        set { _image = newValue }
+        get { return _image! }
+    }
     
     var message: String {
         set{_message = newValue}
@@ -22,15 +59,31 @@ class Message
         set{_userId = newValue}
         get{return _userId}
     }
-    
-    init(){}
+
     
     func toDictonary() -> Dictionary<String, String>
     {
         var tempDict = Dictionary<String , String>()
         tempDict["message"] = self._message
         tempDict["userId"] = self._userId
+        if imageUrl != nil
+        {
+            tempDict["imageUrl"] = self.imageUrl!
+        }
         return tempDict
         
     }
+    
+    func toGroupChatDict() -> Dictionary<String , String>
+    {
+        var tempDict = Dictionary<String , String>()
+        tempDict["message"] = self._message
+        tempDict["fullName"] = self._userName
+        if imageUrl != nil
+        {
+            tempDict["imageUrl"] = self.imageUrl!
+        }
+        return tempDict
+    }
+    
 }

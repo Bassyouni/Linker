@@ -21,6 +21,7 @@ class AllUsersVC: UITableViewController {
         
     }
     
+    // MARK: - grab datafrom  Firebase
     func grabDataFromFireBase()
     {
                 ref.observe(DataEventType.value, with: { (snapshot) in
@@ -41,6 +42,7 @@ class AllUsersVC: UITableViewController {
                         imageUrl = value["imageUrl"] as! String
                         id = value["id"] as! String
                         
+                        // to not include current user
                         if id == currentUser.id
                         {
                             continue
@@ -57,7 +59,6 @@ class AllUsersVC: UITableViewController {
     }
 
 
-
     // MARK: - Table view data source
 
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -68,7 +69,6 @@ class AllUsersVC: UITableViewController {
         return allUsers.count
     }
 
-    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if let cell = tableView.dequeueReusableCell(withIdentifier: "AllUsersCell", for: indexPath) as? AllUsersCell
         {
@@ -83,7 +83,6 @@ class AllUsersVC: UITableViewController {
 
     }
     
-
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 80
     }
@@ -92,6 +91,7 @@ class AllUsersVC: UITableViewController {
         performSegue(withIdentifier: "ChatVC2", sender: allUsers[indexPath.row])
     }
     
+    //MARK: - segue
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let destination = segue.destination as? ChatVC
         {

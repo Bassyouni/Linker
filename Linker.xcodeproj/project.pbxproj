@@ -12,6 +12,7 @@
 		B8559BEA1F3065A8003042E3 /* MainVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8559BE91F3065A8003042E3 /* MainVC.swift */; };
 		B8559BF21F306699003042E3 /* ParentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8559BEF1F306699003042E3 /* ParentViewController.swift */; };
 		B8559BF31F306699003042E3 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = B8559BF11F306699003042E3 /* MBProgressHUD.m */; };
+		B8A6D7AF1F36F077003A52E8 /* GroupChatCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8A6D7AE1F36F077003A52E8 /* GroupChatCell.swift */; };
 		B8C3014D1F31D05E0067D170 /* AllUsersVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8C3014C1F31D05E0067D170 /* AllUsersVC.swift */; };
 		B8C3014F1F31D26A0067D170 /* AllUsersCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8C3014E1F31D26A0067D170 /* AllUsersCell.swift */; };
 		B8C301511F31E7020067D170 /* ActivityCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8C301501F31E7020067D170 /* ActivityCell.swift */; };
@@ -38,6 +39,7 @@
 		B8559BF01F306699003042E3 /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBProgressHUD.h; sourceTree = "<group>"; };
 		B8559BF11F306699003042E3 /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MBProgressHUD.m; sourceTree = "<group>"; };
 		B8559BF41F30693E003042E3 /* Linker.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Linker.entitlements; sourceTree = "<group>"; };
+		B8A6D7AE1F36F077003A52E8 /* GroupChatCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GroupChatCell.swift; sourceTree = "<group>"; };
 		B8C3014C1F31D05E0067D170 /* AllUsersVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AllUsersVC.swift; sourceTree = "<group>"; };
 		B8C3014E1F31D26A0067D170 /* AllUsersCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AllUsersCell.swift; sourceTree = "<group>"; };
 		B8C301501F31E7020067D170 /* ActivityCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActivityCell.swift; sourceTree = "<group>"; };
@@ -95,6 +97,7 @@
 				B8C3014E1F31D26A0067D170 /* AllUsersCell.swift */,
 				B8C301501F31E7020067D170 /* ActivityCell.swift */,
 				B8C301621F3202220067D170 /* MessageCell.swift */,
+				B8A6D7AE1F36F077003A52E8 /* GroupChatCell.swift */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -314,6 +317,7 @@
 			files = (
 				B8CAF9571F2F399A00E883D9 /* LandingVC.swift in Sources */,
 				B8559BEA1F3065A8003042E3 /* MainVC.swift in Sources */,
+				B8A6D7AF1F36F077003A52E8 /* GroupChatCell.swift in Sources */,
 				B8C301511F31E7020067D170 /* ActivityCell.swift in Sources */,
 				B8559BF21F306699003042E3 /* ParentViewController.swift in Sources */,
 				B8CAF9551F2F399A00E883D9 /* AppDelegate.swift in Sources */,

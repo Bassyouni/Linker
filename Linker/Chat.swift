@@ -16,22 +16,34 @@ class Chat
     
     var messages: [Message]!
     
-    init(firstUser: LinkerUser , secondUser: LinkerUser ,messagesArrayDict:[String: [String:String] ] , chatId: String) {
+    init(firstUser: LinkerUser , secondUser: LinkerUser ,messagesArrayDict:[String: [String:String] ]?, chatId: String) {
         self._firstUser = firstUser
         self._secondUser = secondUser
         self._chatId = chatId
         messages = [Message]()
 
-        //_ = messagesArrayDict.keys.Array.sorted{$0<$1}
-        let sortedMessagesArrayDict = messagesArrayDict.keys.sorted(by: {$0<$1})
-        for key in sortedMessagesArrayDict
+        if messagesArrayDict != nil
         {
-            let tempMessage = Message()
-            
-            tempMessage.message = (messagesArrayDict[key]?["message"]!)!
-            tempMessage.userId = (messagesArrayDict[key]?["userId"]!)!
-            messages.append(tempMessage)
+            let sortedMessagesArrayDict = messagesArrayDict?.keys.sorted(by: {$0<$1})
+            for key in sortedMessagesArrayDict!
+            {
+                let tempMessage = Message()
+                
+                tempMessage.message = (messagesArrayDict?[key]?["message"]!)!
+                tempMessage.userId = (messagesArrayDict?[key]?["userId"]!)!
+                
+                if messagesArrayDict?[key]?["imageUrl"] != nil
+                {
+                    tempMessage.imageUrl = (messagesArrayDict?[key]?["imageUrl"]!)!
+                }
+                messages.append(tempMessage)
+            }
         }
+        else
+        {
+            messages = [Message]()
+        }
+        
     }
     
     init(firstUser: LinkerUser , secondUser: LinkerUser ,messagesArray: [Message] , chatId: String) {
@@ -42,6 +54,41 @@ class Chat
         
         self.messages = messagesArray
     }
+    
+    /// init for Group Chats
+    ///
+    /// - Parameters:
+    ///   - messagesArrayDict: json coming from firebase
+    ///   - chatId: dummy variable
+    init(messagesArrayDict:[String: [String:String] ]?, chatId: String)
+    {
+        self._chatId = chatId
+        messages = [Message]()
+        
+        if messagesArrayDict != nil
+        {
+            let sortedMessagesArrayDict = messagesArrayDict?.keys.sorted(by: {$0<$1})
+            for key in sortedMessagesArrayDict!
+            {
+                let tempMessage = Message()
+                
+                tempMessage.message = (messagesArrayDict?[key]?["message"]!)!
+                tempMessage.userName = (messagesArrayDict?[key]?["fullName"]!)!
+                
+                if messagesArrayDict?[key]?["imageUrl"] != nil
+                {
+                    tempMessage.imageUrl = (messagesArrayDict?[key]?["imageUrl"]!)!
+                }
+                messages.append(tempMessage)
+            }
+        }
+        else
+        {
+            messages = [Message]()
+        }
+    }
+    
+    init(){}
     
     var firstUser: LinkerUser
     {

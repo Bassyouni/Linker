@@ -32,4 +32,12 @@ class ActivityCell: UITableViewCell {
         userName.text = chat.secondUser.fullName!
         userImage.sd_setImage(with: URL(string:chat.secondUser.imageUrl! ))
     }
+    
+    func configureGroupChatCell(groupChat:Chat , name: String)
+    {
+        lastSentMessage.text = groupChat.messages.last?.message
+        
+        userName.text = name
+        userImage.image = UIImage(named: "groupChatPhoto")
+    }
 }

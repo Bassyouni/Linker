@@ -24,38 +24,14 @@ class LandingVC: ParentViewController {
         ref = Database.database().reference()
         
         self.facebookLoginBtn.addTarget(self, action: #selector(self.loginButtonClicked), for: UIControlEvents.touchUpInside)
-        
-        // Auto Login for both facebook and linkedIn
+
         if let accsesToken = AccessToken.current
         {
-            
+            self.showLoading()
             self.fetchUser(userID: accsesToken.userId!, userName: nil, userImageUrl: nil)
-            self.makeSegueToMainVC()
         }
         
         
-        
-
-////        var linkerUser = LinkerUser(id: "123456", fullName: "Omar Bassseee", imageUrl: "")
-////        
-////        self.ref.child("users").childByAutoId().setValue(linkerUser.makeDict())
-//            ref.observe(DataEventType.value, with: { (snapshot) in
-//            let postDict = snapshot.value as? [String : AnyObject] ?? [:]
-//            // ...
-//                
-//               print(postDict)
-//                
-//                if let dic = postDict["users"] as?  Dictionary<String,Dictionary<String,AnyObject>>
-//                {
-//                    for (_,value) in dic
-//                    {
-//                        print(value["fullName"]!)
-//                        print(value["id"]!)
-//                    }
-//                }
-//                
-//            
-//        })
         
     }
 
@@ -78,7 +54,7 @@ class LandingVC: ParentViewController {
                 connection.add(GraphRequest(graphPath: "/me" , parameters: ["fields": "name,email,first_name,last_name,picture.type(small)"])) { httpResponse, result in
                     switch result {
                     case .success(let response):
-                        
+                        // taking data from Facebook
                         let dic = response.dictionaryValue!
                         if let pictureDic = dic["picture"] as? Dictionary<String ,AnyObject>
                         {
@@ -94,10 +70,6 @@ class LandingVC: ParentViewController {
                         self.fetchUser(userID: currentUser.id, userName: currentUser.fullName, userImageUrl: currentUser.imageUrl)
                         
 
-                        
-                        //Go to the mainView having with it a sideMenu
-                        self.makeSegueToMainVC()
-                        
                     case .failed(let error):
                         print("Graph Request Failed: \(error)")
                     }
@@ -114,10 +86,9 @@ class LandingVC: ParentViewController {
             let postDict = snapshot.value as? [String : AnyObject] ?? [:]
             // ...
             
-            print(postDict)
-            
             if let dic = postDict["users"] as?  Dictionary<String,Dictionary<String,AnyObject>>
             {
+                //case 1: if user already on database
                 for (_,value) in dic
                 {
                     if value["id"] as? String == userID
@@ -125,42 +96,19 @@ class LandingVC: ParentViewController {
                         currentUser.id = userID
                         currentUser.fullName = value["fullName"]! as? String
                         currentUser.imageUrl = value["imageUrl"]! as? String
+                        self.makeSegueToMainVC()
                         return
                     }
                 }
                 
+                //case 2: Add new user to database
                 currentUser = LinkerUser(id: userID , fullName: userName! , imageUrl: userImageUrl)
                 self.ref.child("users").childByAutoId().setValue(currentUser.makeDict())
+                self.hideLoading()
+                self.makeSegueToMainVC()
             }
             
-            
         })
-
-//        ref.observe(DataEventType.value, with: { (snapshot) in
-//        let postDict = snapshot.value as? [String : AnyObject] ?? [:]
-//        // ...
-//        
-//        print(postDict)
-//        
-//        if let dic = postDict["users"] as?  Dictionary<String,Dictionary<String,AnyObject>>
-//        {
-//            for (_,value) in dic
-//            {
-//                if value["id"] as? String == userID
-//                {
-//                    currentUser.id = userID
-//                    currentUser.fullName = value["fullName"]! as? String
-//                    currentUser.imageUrl = value["imageUrl"]! as? String
-//                    return
-//                }
-//            }
-//            
-//            currentUser = LinkerUser(id: userID , fullName: userName! , imageUrl: userImageUrl)
-//            self.ref.child("users").childByAutoId().setValue(currentUser.makeDict())
-//        }
-//                        
-//                    
-//        })
     }
     
     func makeSegueToMainVC()

@@ -9,66 +9,81 @@
 import UIKit
 import SDWebImage
 import Firebase
+import FirebaseStorage
 
-class ChatVC: ParentViewController , UITableViewDelegate , UITableViewDataSource ,UITextViewDelegate {
-    
+class ChatVC: ParentViewController , UITableViewDelegate , UITableViewDataSource ,UITextViewDelegate, UIImagePickerControllerDelegate , UINavigationControllerDelegate {
+  
+    //MARK: - variables
     var messages = [Message]()
     var chat: Chat?
     var otherSideUser: LinkerUser?
     var ref: DatabaseReference!
     var isNewChat: Bool = true
+    var isGroupChat: Bool = false
+    var imagePicker: UIImagePickerController!
  
-    //@IBOutlet weak var messageLabel: UILabel!
+    //MARK: - iboutlets
     @IBOutlet weak var keyboardHeightLayoutConstraint: NSLayoutConstraint!
-    
     @IBOutlet weak var messageInputTextView: UITextView!
     @IBOutlet weak var tableView: UITableView!
-    
-    
+    @IBOutlet weak var messageImage: UIImageView!
 
+    
+    //MARK: - view DidLoad & deinit
     override func viewDidLoad() {
         super.viewDidLoad()
-        messageInputTextView.layer.cornerRadius = 15.0
-        messageInputTextView.layer.borderWidth = 2.0
         
-        let amountOfLinesToBeShown:CGFloat = 6
-        let maxHeight:CGFloat = messageInputTextView.font!.lineHeight * amountOfLinesToBeShown
-
-        messageInputTextView.sizeThatFits(CGSize(width: messageInputTextView.frame.size.width , height: maxHeight))
+        self.viewConfig()
         
-        //messageLabel.sizeToFit()
+        //tap to hideKeyBoard
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(ChatVC.hideKeyboard))
+        tapGesture.cancelsTouchesInView = true
+        tableView.addGestureRecognizer(tapGesture)
         
+        imagePicker = UIImagePickerController()
+        imagePicker.delegate = self
+   
         tableView.delegate = self
         tableView.dataSource = self
         tableView.rowHeight = UITableViewAutomaticDimension
         tableView.estimatedRowHeight = 140
+        tableView.backgroundView = UIImageView(image: UIImage(named: "chatBG"))
         
         messageInputTextView.delegate = self
-        
-
-        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardNotification(notification:)), name: NSNotification.Name.UIKeyboardWillChangeFrame, object: nil)
-        
-        self.navigationItem.hidesBackButton = true
-        let newBackButton = UIBarButtonItem(title: "Back", style: UIBarButtonItemStyle.plain, target: self, action: #selector(ChatVC.backToMainVC(sender:)))
-        self.navigationItem.leftBarButtonItem = newBackButton
+    
         
         ref = Database.database().reference()
         
+        // case 1 : it is a new chat
         if isNewChat && otherSideUser != nil
         {
             self.navigationItem.title = otherSideUser?.fullName
             self.showLoading()
             self.checkIfChatIsExisted()
         }
-        else if !isNewChat && chat != nil
+        // case 2 : its and existing chat but not a group chat
+        else if !isNewChat && chat != nil && !isGroupChat
         {
             self.navigationItem.title = chat?.secondUser.fullName
             messages = (chat?.messages)!
+            messagesFromFireBaseRealTime()
             
+        }
+        // case 3 : it is a group chat
+        else if chat != nil && isGroupChat
+        {
+            self.navigationItem.title = "Linker Chat"
+            self.groupChatMessagesFromFirebase()
         }
         
     }
   
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    
+    //MARK: - Firebase data grabbing
     func checkIfChatIsExisted()
     {
         ref.observe(DataEventType.value, with: { (snapshot) in
@@ -79,25 +94,17 @@ class ChatVC: ParentViewController , UITableViewDelegate , UITableViewDataSource
             {
                 for (key,value) in dic
                 {
-                    if value["firstUser"]?["id"] as? String == currentUser.id
+                    if value["firstUser"]?["id"] as? String == currentUser.id || value["secondUser"]?["id"] as? String == currentUser.id
                     {
-                        if value["secondUser"]?["id"] as? String == self.otherSideUser?.id
+                        if value["secondUser"]?["id"] as? String == self.otherSideUser?.id || value["firstUser"]?["id"] as? String == self.otherSideUser?.id
                         {
-                            let newRef = self.ref.child("chats").child(key).child("messages")
-                            newRef.queryOrderedByKey().observe(DataEventType.value, with: {(snapshot) in
+                            self.chat = Chat()
+                            self.chat?.chatId = key
+                            self.chat?.firstUser = currentUser
+                            self.chat?.secondUser = self.otherSideUser!
                             
-                                self.isNewChat = false
-                                print(snapshot.value ?? "none!")
-                                if let messagesArray = snapshot.value as? [String: [String:String]]
-                                {
-                                    self.chat = Chat(firstUser: currentUser, secondUser: self.otherSideUser!, messagesArrayDict: messagesArray, chatId: key)
-                                    self.messages = (self.chat?.messages)!
-                                }
-                                self.tableView.reloadData()
-                            })
-                            
-                            
-                                
+                            //to make messages update real time
+                            self.messagesFromFireBaseRealTime()
                             
                         }
                     }
@@ -109,12 +116,47 @@ class ChatVC: ParentViewController , UITableViewDelegate , UITableViewDataSource
         })
     }
     
-    deinit {
-        NotificationCenter.default.removeObserver(self)
+    /// Grabs data for group chat from Firebase realtime
+    func groupChatMessagesFromFirebase()
+    {
+        //this function is real time
+        let messagesRef = self.ref.child("groupChat")
+        messagesRef.observe(DataEventType.value, with:{(snapshot) in
+        
+            if let messagesArray = snapshot.value as? [String: [String:String]]
+            {
+                self.chat = Chat(messagesArrayDict: messagesArray, chatId: "LinkerChat1")
+                self.messages = (self.chat?.messages)!
+            }
+            self.tableView.reloadData()
+            self.scrollDownTableView()
+        
+        
+        })
     }
     
+    /// Grabs data for one to one chat from Firebase realtime
+    func messagesFromFireBaseRealTime()
+    {
+        // this funtion is real time
+        let newRef = self.ref.child("chats").child((chat?.chatId)!).child("messages")
+        newRef.queryOrderedByKey().observe(DataEventType.value, with: {(snapshot) in
+            
+            if let messagesArray = snapshot.value as? [String: [String:String]]
+            {
+                self.chat = Chat(firstUser: (self.chat?.firstUser)!, secondUser: (self.chat?.secondUser)!, messagesArrayDict: messagesArray, chatId: (self.chat?.chatId)!)
+                self.messages = (self.chat?.messages)!
+            }
+            self.tableView.reloadData()
+            self.scrollDownTableView()
+        })
+
+    }
+    
+    
+     //MARK: - unwind segue to mainVC
     func backToMainVC(sender: UIBarButtonItem) {
-        
+       
         if messages.count != 0 && isNewChat
         {
             performSegue(withIdentifier: "unwindToMainVC", sender: nil)
@@ -124,12 +166,10 @@ class ChatVC: ParentViewController , UITableViewDelegate , UITableViewDataSource
             _ = self.navigationController?.popViewController(animated: true)
         }
         
-        
-        
     }
     
-    //MARK: - table
     
+    //MARK: - table
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
@@ -140,18 +180,40 @@ class ChatVC: ParentViewController , UITableViewDelegate , UITableViewDataSource
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if let cell = tableView.dequeueReusableCell(withIdentifier: "MessageCell", for: indexPath) as? MessageCell
+        
+        if !isGroupChat
         {
-            cell.configureCell(message: messages[indexPath.row])
-            return cell
+            if let cell = tableView.dequeueReusableCell(withIdentifier: "MessageCell", for: indexPath) as? MessageCell
+            {
+                cell.configureCell(message: messages[indexPath.row])
+                return cell
+            }
         }
-        return UITableViewCell()
+        else
+        {
+            if let cell = tableView.dequeueReusableCell(withIdentifier: "GroupChatCell", for: indexPath) as? GroupChatCell
+            {
+                cell.configureCell(message: messages[indexPath.row])
+                return cell
+            }
+        }
+        
+       return UITableViewCell()
     }
     
+    
+    //MARK: - ibActions
     @IBAction func sendBtnPressed(_ sender: Any) {
         self.sendMessage()
     }
     
+    @IBAction func imageBtnPressed(_ sender: Any){
+        imagePicker.sourceType = .photoLibrary
+        present(imagePicker, animated: true, completion: nil)
+    }
+    
+    
+    //MARK: - Messages Sending Functions
     func sendMessage()
     {
         if messageInputTextView.text == ""
@@ -164,8 +226,22 @@ class ChatVC: ParentViewController , UITableViewDelegate , UITableViewDataSource
         tempMessage.userId = currentUser.id
         messages.append(tempMessage)
         tableView.reloadData()
-        scrollDownTableView()
         
+        if isGroupChat {
+            tempMessage.userName = currentUser.fullName
+            let refToMessages = self.ref.child("groupChat")
+            refToMessages.childByAutoId().setValue(tempMessage.toGroupChatDict())
+        }
+        else
+        {
+            sendMessageOneToOne(tempMessage: tempMessage)
+        }
+        
+    }
+    
+    func sendMessageOneToOne(tempMessage :Message)
+    {
+        //case 1: new chat , init chat in Firebase
         if messages.count == 1
         {
             var chatDict = Dictionary<String,AnyObject>()
@@ -181,29 +257,79 @@ class ChatVC: ParentViewController , UITableViewDelegate , UITableViewDataSource
                 refToMessages.childByAutoId().setValue(obj.toDictonary())
             }
             
-            //to do work ,,, populate chat var
             chat = Chat(firstUser: currentUser, secondUser: otherSideUser!, messagesArray: messages, chatId: refrence.key)
+            self.messagesFromFireBaseRealTime()
             
         }
+        //case 2: existing chat
         else if chat != nil || otherSideUser != nil
         {
             let refToMessages = self.ref.child("chats").child((chat?.chatId)!).child("messages")
             refToMessages.childByAutoId().setValue(tempMessage.toDictonary())
         }
-
     }
     
-    func scrollDownTableView()
+    //MARK: - image picking from gallary
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any])
     {
-        let numberOfSections = self.tableView.numberOfSections
-        let numberOfRows = self.tableView.numberOfRows(inSection: numberOfSections-1)
         
-        let indexPath = IndexPath(row: numberOfRows-1 , section: numberOfSections-1)
-        self.tableView.scrollToRow(at: indexPath, at: UITableViewScrollPosition.middle, animated: true)
-        
-    }
+        //send Photo
+        if let image =  info[UIImagePickerControllerOriginalImage] as? UIImage
+        {
+            let tempMessage = Message()
+            tempMessage.image = image
+            tempMessage.message = ""
+            
+            // Data in memory
+            let data = UIImageJPEGRepresentation(image, 0)
+            
+            // Create a reference to the file you want to upload
+            let storageRef = Storage.storage().reference()
+            let imageRef = storageRef.child("chat_photos/photo-\(currentUser.id)-\(messages.count)")
+            
+            self.showLoading()
+            // Upload the file to the path "images/rivers.jpg"
+            _ = imageRef.putData(data!, metadata: nil) { (metadata, error) in
+                guard let metadata = metadata else {
+                    // Uh-oh, an error occurred!
+                    return
+                }
+                // Metadata contains file metadata such as size, content-type, and download URL.
+                let downloadURL = metadata.downloadURL
+                tempMessage.imageUrl = downloadURL()?.absoluteString
+                if self.isGroupChat
+                {
+                    tempMessage.userName = currentUser.fullName
+                    let refToMessages = self.ref.child("groupChat")
+                    refToMessages.childByAutoId().setValue(tempMessage.toGroupChatDict())
+                }
+                else
+                {
+                    tempMessage.userId = currentUser.id
+                    let refToMessages = self.ref.child("chats").child((self.chat?.chatId)!).child("messages")
+                    refToMessages.childByAutoId().setValue(tempMessage.toDictonary())
+                }
+                
+                self.messages.append(tempMessage)
+                self.hideLoading()
+                
+            }
+            
+
+            
+            
+
+            
+            
+        }
+            
     
-    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        imagePicker.dismiss(animated: true, completion: nil)
+    }
+
+    //MARK: - keyboard avoding textView
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool
+    {
         if(text == "\n") {
             textView.resignFirstResponder()
             self.sendMessage()
@@ -212,11 +338,8 @@ class ChatVC: ParentViewController , UITableViewDelegate , UITableViewDataSource
         return true
     }
     
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        view.endEditing(true)
-    }
-    
-    @objc func keyboardNotification(notification: NSNotification) {
+    @objc func keyboardNotification(notification: NSNotification)
+    {
         if let userInfo = notification.userInfo {
             let endFrame = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
             let duration:TimeInterval = (userInfo[UIKeyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? 0
@@ -236,6 +359,38 @@ class ChatVC: ParentViewController , UITableViewDelegate , UITableViewDataSource
         }
     }
     
+    //MARK: - utilites
+    func scrollDownTableView()
+    {
+        let numberOfSections = self.tableView.numberOfSections
+        let numberOfRows = self.tableView.numberOfRows(inSection: numberOfSections-1)
+        
+        let indexPath = IndexPath(row: numberOfRows-1 , section: numberOfSections-1)
+        self.tableView.scrollToRow(at: indexPath, at: UITableViewScrollPosition.middle, animated: true)
+        
+    }
     
+    func viewConfig()
+    {
+        self.view.backgroundColor = UIColor(patternImage: UIImage(named: "chatBG")!)
+        
+        messageInputTextView.layer.cornerRadius = 15.0
+        messageInputTextView.layer.borderWidth = 2.0
+        
+        let amountOfLinesToBeShown:CGFloat = 6
+        let maxHeight:CGFloat = messageInputTextView.font!.lineHeight * amountOfLinesToBeShown
+        
+        messageInputTextView.sizeThatFits(CGSize(width: messageInputTextView.frame.size.width , height: maxHeight))
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardNotification(notification:)), name: NSNotification.Name.UIKeyboardWillChangeFrame, object: nil)
+        
+        self.navigationItem.hidesBackButton = true
+        let newBackButton = UIBarButtonItem(title: "Back", style: UIBarButtonItemStyle.plain, target: self, action: #selector(ChatVC.backToMainVC(sender:)))
+        self.navigationItem.leftBarButtonItem = newBackButton
+    }
+    
+    func hideKeyboard()
+    {
+        self.view.endEditing(true)
+    }
 
 }
