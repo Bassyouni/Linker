@@ -26,6 +26,7 @@
 		B8CAF95F1F2F399A00E883D9 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B8CAF95D1F2F399A00E883D9 /* LaunchScreen.storyboard */; };
 		B8CAF9671F2F3E2C00E883D9 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B8CAF9661F2F3E2C00E883D9 /* GoogleService-Info.plist */; };
 		B8CAF9691F2F511500E883D9 /* LinkerUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8CAF9681F2F511500E883D9 /* LinkerUser.swift */; };
+		B8E10DF91F37596D00AD2BD7 /* FullImageVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8E10DF81F37596D00AD2BD7 /* FullImageVC.swift */; };
 		B8E65A431F32B2A100894704 /* Chat.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8E65A421F32B2A100894704 /* Chat.swift */; };
 /* End PBXBuildFile section */
 
@@ -55,6 +56,7 @@
 		B8CAF9601F2F399A00E883D9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B8CAF9661F2F3E2C00E883D9 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		B8CAF9681F2F511500E883D9 /* LinkerUser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LinkerUser.swift; sourceTree = "<group>"; };
+		B8E10DF81F37596D00AD2BD7 /* FullImageVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FullImageVC.swift; sourceTree = "<group>"; };
 		B8E65A421F32B2A100894704 /* Chat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Chat.swift; sourceTree = "<group>"; };
 		FDF1476947C025ED6A9017EC /* Pods_Linker.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Linker.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -87,6 +89,7 @@
 				B8559BE91F3065A8003042E3 /* MainVC.swift */,
 				B8C3014C1F31D05E0067D170 /* AllUsersVC.swift */,
 				B8C301541F31EA210067D170 /* ChatVC.swift */,
+				B8E10DF81F37596D00AD2BD7 /* FullImageVC.swift */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -326,6 +329,7 @@
 				B8559BE81F306366003042E3 /* Constants.swift in Sources */,
 				B8559BF31F306699003042E3 /* MBProgressHUD.m in Sources */,
 				B8E65A431F32B2A100894704 /* Chat.swift in Sources */,
+				B8E10DF91F37596D00AD2BD7 /* FullImageVC.swift in Sources */,
 				B8C301631F3202220067D170 /* MessageCell.swift in Sources */,
 				B8C301651F3208560067D170 /* Message.swift in Sources */,
 				B8C3014D1F31D05E0067D170 /* AllUsersVC.swift in Sources */,

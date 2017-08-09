@@ -27,8 +27,7 @@ class AllUsersVC: UITableViewController {
                 ref.observe(DataEventType.value, with: { (snapshot) in
                 let postDict = snapshot.value as? [String : AnyObject] ?? [:]
                 // ...
-        
-                print(postDict)
+
         
                 if let dic = postDict["users"] as?  Dictionary<String,Dictionary<String,AnyObject>>
                 {
@@ -36,11 +35,14 @@ class AllUsersVC: UITableViewController {
                     var fullName: String!
                     var id : String!
                     var imageUrl: String!
+                    var isOnline: Bool!
                     for (_,value) in dic
                     {
                         fullName = value["fullName"] as! String
                         imageUrl = value["imageUrl"] as! String
                         id = value["id"] as! String
+                        
+                        
                         
                         // to not include current user
                         if id == currentUser.id
@@ -48,7 +50,18 @@ class AllUsersVC: UITableViewController {
                             continue
                         }
                         
-                        let linkerUser = LinkerUser(id: id, fullName: fullName, imageUrl: imageUrl)
+                        
+                        if value["connections"] != nil
+                        {
+                            isOnline = true
+                        }
+                        else
+                        {
+                            isOnline = false
+                        }
+                        
+                        let linkerUser = LinkerUser(id: id, fullName: fullName, imageUrl: imageUrl , isOnline: isOnline)
+                        
                         self.allUsers.append(linkerUser)
                     }
         

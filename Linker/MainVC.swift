@@ -23,11 +23,18 @@ class MainVC: UITableViewController {
         super.viewDidLoad()
         ref = Database.database().reference()
         self.showLoading()
+        self.firebaseOnlineOfflineCap()
         self.grabDataFromFireBase()
         self.grabGroupChatMessages()
 
     
     }
+    
+    deinit {
+        print("dead!!! **************************************")
+    }
+    
+    
     
     //MARK: - progress hud
     func showLoading()
@@ -62,6 +69,7 @@ class MainVC: UITableViewController {
                 {
                     let firstUser = LinkerUser(id:value["firstUser"]?["id"] as! String , fullName: value["firstUser"]?["fullName"] as! String, imageUrl: value["firstUser"]?["imageUrl"] as? String)
                     let secondUser = LinkerUser(id: value["secondUser"]?["id"] as! String, fullName: value["secondUser"]?["fullName"] as! String, imageUrl: value["secondUser"]?["imageUrl"] as? String)
+                    
                     
                     let chat: Chat!
                     if (value["messages"] as? [String: [String:String] ]) != nil
@@ -201,7 +209,7 @@ class MainVC: UITableViewController {
         let delegate = UIApplication.shared.delegate as? AppDelegate
         let loginPage = self.storyboard?.instantiateViewController(withIdentifier: "LandingVC")
         
-        delegate?.window?.rootViewController = loginPage
+        delegate?.window?.rootViewController = loginPage        
         
     }
     
@@ -230,5 +238,46 @@ class MainVC: UITableViewController {
         }
     }
     
-
+    
+    //MARK: - online offline capabilities
+    func firebaseOnlineOfflineCap()
+    {
+        // since I can connect from multiple devices, we store each connection instance separately
+        // any time that connectionsRef's value is null (i.e. has no children) I am offline
+        let myConnectionsRef = Database.database().reference(withPath: "users/\(currentUser.id!)/connections")
+        
+        // stores the timestamp of my last disconnect (the last time I was seen online)
+        let lastOnlineRef = Database.database().reference(withPath: "users/\(currentUser.id!)/lastOnline")
+        
+        let connectedRef = Database.database().reference(withPath: ".info/connected")
+        
+        connectedRef.observe(.value, with: { snapshot in
+            // only handle connection established (or I've reconnected after a loss of connection)
+            guard let connected = snapshot.value as? Bool, connected else { return }
+            
+            // add this device to my connections list
+            let con = myConnectionsRef.childByAutoId()
+            
+            // when this device disconnects, remove it.
+            con.onDisconnectRemoveValue()
+            
+            // The onDisconnect() call is before the call to set() itself. This is to avoid a race condition
+            // where you set the user's presence to true and the client disconnects before the
+            // onDisconnect() operation takes effect, leaving a ghost user.
+            
+            // this value could contain info about the device or a timestamp instead of just true
+            con.setValue(true)
+            
+            // when I disconnect, update the last time I was seen online
+            lastOnlineRef.onDisconnectSetValue(ServerValue.timestamp())
+        })
+    }
+    
+    
+    
+    
+    
+    
+    
+    
 }

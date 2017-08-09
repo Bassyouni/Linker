@@ -11,6 +11,7 @@ import SDWebImage
 
 class AllUsersCell: UITableViewCell {
 
+    @IBOutlet weak var onlineOfflineImage: UIImageView!
     @IBOutlet weak var userImage: UIImageView!
     @IBOutlet weak var userName: UILabel!
     
@@ -27,6 +28,15 @@ class AllUsersCell: UITableViewCell {
     {
         self.userName.text = linkerUser.fullName
         self.userImage.sd_setImage(with: URL(string: linkerUser.imageUrl!))
+        
+        if linkerUser.isOnline
+        {
+            onlineOfflineImage.image = UIImage(named: "online")
+        }
+        else
+        {
+            onlineOfflineImage.image = UIImage(named: "offline")
+        }
     }
 
 

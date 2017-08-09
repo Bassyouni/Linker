@@ -24,7 +24,7 @@ class LandingVC: ParentViewController {
         ref = Database.database().reference()
         
         self.facebookLoginBtn.addTarget(self, action: #selector(self.loginButtonClicked), for: UIControlEvents.touchUpInside)
-
+        //AccessToken.current = nil
         if let accsesToken = AccessToken.current
         {
             self.showLoading()
@@ -81,32 +81,28 @@ class LandingVC: ParentViewController {
     
     func fetchUser(userID: String, userName: String?, userImageUrl: String? )
     {
-        
-        ref.observeSingleEvent(of: DataEventType.value, with: { (snapshot) in
+        let userRef = ref.child("users").child(userID)
+        userRef.observeSingleEvent(of: DataEventType.value, with: { (snapshot) in
             let postDict = snapshot.value as? [String : AnyObject] ?? [:]
             // ...
             
-            if let dic = postDict["users"] as?  Dictionary<String,Dictionary<String,AnyObject>>
+            if userName == nil
             {
-                //case 1: if user already on database
-                for (_,value) in dic
-                {
-                    if value["id"] as? String == userID
-                    {
-                        currentUser.id = userID
-                        currentUser.fullName = value["fullName"]! as? String
-                        currentUser.imageUrl = value["imageUrl"]! as? String
-                        self.makeSegueToMainVC()
-                        return
-                    }
-                }
-                
-                //case 2: Add new user to database
-                currentUser = LinkerUser(id: userID , fullName: userName! , imageUrl: userImageUrl)
-                self.ref.child("users").childByAutoId().setValue(currentUser.makeDict())
-                self.hideLoading()
-                self.makeSegueToMainVC()
+                currentUser.id = userID
+                currentUser.fullName = postDict["fullName"]! as? String
+                currentUser.imageUrl = postDict["imageUrl"]! as? String
             }
+            else
+            {
+                currentUser.id = userID
+                currentUser.fullName = userName
+                currentUser.imageUrl = userImageUrl
+                self.ref.child("users").child(currentUser.id!).setValue(currentUser.makeDict())
+            }
+            
+            self.hideLoading()
+            self.makeSegueToMainVC()
+            
             
         })
     }

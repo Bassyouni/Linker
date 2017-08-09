@@ -56,7 +56,7 @@ class MessageCell: UITableViewCell {
         }
         else
         {
-            messageBgColor.backgroundColor = UIColor.blue
+            messageBgColor.backgroundColor = UIColor(red: 57, green: 133, blue: 255)
             self.message.textColor = UIColor.white
             self.message.textAlignment = .left
             leftSpaceConstraint.constant = 100

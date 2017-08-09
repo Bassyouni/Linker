@@ -21,6 +21,8 @@ class ChatVC: ParentViewController , UITableViewDelegate , UITableViewDataSource
     var isNewChat: Bool = true
     var isGroupChat: Bool = false
     var imagePicker: UIImagePickerController!
+
+
  
     //MARK: - iboutlets
     @IBOutlet weak var keyboardHeightLayoutConstraint: NSLayoutConstraint!
@@ -37,7 +39,7 @@ class ChatVC: ParentViewController , UITableViewDelegate , UITableViewDataSource
         
         //tap to hideKeyBoard
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(ChatVC.hideKeyboard))
-        tapGesture.cancelsTouchesInView = true
+        tapGesture.cancelsTouchesInView = false
         tableView.addGestureRecognizer(tapGesture)
         
         imagePicker = UIImagePickerController()
@@ -201,6 +203,13 @@ class ChatVC: ParentViewController , UITableViewDelegate , UITableViewDataSource
        return UITableViewCell()
     }
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if messages[indexPath.row].imageUrl != nil
+        {
+            performSegue(withIdentifier: "FullImageVC", sender:messages[indexPath.row].imageUrl )
+
+        }
+    }
     
     //MARK: - ibActions
     @IBAction func sendBtnPressed(_ sender: Any) {
@@ -239,10 +248,26 @@ class ChatVC: ParentViewController , UITableViewDelegate , UITableViewDataSource
         
     }
     
-    func sendMessageOneToOne(tempMessage :Message)
+    func sendMessageOneToOne(tempMessage :Message?)
     {
+        //case 0: new chat , init chat in Firebase if the first message is a photo
+        if messages.count == 0 && tempMessage == nil
+        {
+            var chatDict = Dictionary<String,AnyObject>()
+            let messagesArray = [Dictionary<String,String>]()
+            chatDict["firstUser"] = currentUser.makeDict() as AnyObject
+            chatDict["secondUser"] = otherSideUser?.makeDict() as AnyObject
+            chatDict["messages"] = messagesArray as AnyObject
+            let refrence = self.ref.child("chats").childByAutoId()
+            refrence.setValue(chatDict)
+
+            
+            chat = Chat(firstUser: currentUser, secondUser: otherSideUser!, messagesArray: messages, chatId: refrence.key)
+            self.messagesFromFireBaseRealTime()
+        }
+        
         //case 1: new chat , init chat in Firebase
-        if messages.count == 1
+        else if messages.count == 1 
         {
             var chatDict = Dictionary<String,AnyObject>()
             let messagesArray = [Dictionary<String,String>]()
@@ -265,7 +290,7 @@ class ChatVC: ParentViewController , UITableViewDelegate , UITableViewDataSource
         else if chat != nil || otherSideUser != nil
         {
             let refToMessages = self.ref.child("chats").child((chat?.chatId)!).child("messages")
-            refToMessages.childByAutoId().setValue(tempMessage.toDictonary())
+            refToMessages.childByAutoId().setValue(tempMessage!.toDictonary())
         }
     }
     
@@ -276,6 +301,7 @@ class ChatVC: ParentViewController , UITableViewDelegate , UITableViewDataSource
         //send Photo
         if let image =  info[UIImagePickerControllerOriginalImage] as? UIImage
         {
+            self.showLoading()
             let tempMessage = Message()
             tempMessage.image = image
             tempMessage.message = ""
@@ -287,7 +313,7 @@ class ChatVC: ParentViewController , UITableViewDelegate , UITableViewDataSource
             let storageRef = Storage.storage().reference()
             let imageRef = storageRef.child("chat_photos/photo-\(currentUser.id)-\(messages.count)")
             
-            self.showLoading()
+            
             // Upload the file to the path "images/rivers.jpg"
             _ = imageRef.putData(data!, metadata: nil) { (metadata, error) in
                 guard let metadata = metadata else {
@@ -305,6 +331,11 @@ class ChatVC: ParentViewController , UITableViewDelegate , UITableViewDataSource
                 }
                 else
                 {
+                    //init chat on FireBase
+                    if self.messages.count == 0
+                    {
+                        self.sendMessageOneToOne(tempMessage: nil)
+                    }
                     tempMessage.userId = currentUser.id
                     let refToMessages = self.ref.child("chats").child((self.chat?.chatId)!).child("messages")
                     refToMessages.childByAutoId().setValue(tempMessage.toDictonary())
@@ -314,20 +345,28 @@ class ChatVC: ParentViewController , UITableViewDelegate , UITableViewDataSource
                 self.hideLoading()
                 
             }
-            
-
-            
-            
-
-            
-            
         }
-            
-    
         imagePicker.dismiss(animated: true, completion: nil)
     }
 
-    //MARK: - keyboard avoding textView
+    //MARK: - keyboard configs & avoding textView
+    
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        if messageInputTextView.textColor == UIColor.gray
+        {
+            messageInputTextView.text = nil
+            messageInputTextView.textColor = UIColor.black
+        }
+    }
+    
+    func textViewDidEndEditing(_ textView: UITextView) {
+        if messageInputTextView.text.isEmpty
+        {
+            messageInputTextView.text = "Type a message"
+            messageInputTextView.textColor = UIColor.gray
+        }
+    }
+    
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool
     {
         if(text == "\n") {
@@ -362,11 +401,15 @@ class ChatVC: ParentViewController , UITableViewDelegate , UITableViewDataSource
     //MARK: - utilites
     func scrollDownTableView()
     {
-        let numberOfSections = self.tableView.numberOfSections
-        let numberOfRows = self.tableView.numberOfRows(inSection: numberOfSections-1)
+        if messages.count != 0
+        {
+            let numberOfSections = self.tableView.numberOfSections
+            let numberOfRows = self.tableView.numberOfRows(inSection: numberOfSections-1)
+            let indexPath = IndexPath(row: numberOfRows-1 , section: numberOfSections-1)
+            
+            self.tableView.scrollToRow(at: indexPath, at: UITableViewScrollPosition.middle, animated: true)
+        }
         
-        let indexPath = IndexPath(row: numberOfRows-1 , section: numberOfSections-1)
-        self.tableView.scrollToRow(at: indexPath, at: UITableViewScrollPosition.middle, animated: true)
         
     }
     
@@ -374,6 +417,9 @@ class ChatVC: ParentViewController , UITableViewDelegate , UITableViewDataSource
     {
         self.view.backgroundColor = UIColor(patternImage: UIImage(named: "chatBG")!)
         
+        messageInputTextView.backgroundColor = UIColor(rgb: 0xFF83EAB6 )
+        messageInputTextView.text = "Type a message"
+        messageInputTextView.textColor = UIColor.gray
         messageInputTextView.layer.cornerRadius = 15.0
         messageInputTextView.layer.borderWidth = 2.0
         
@@ -386,11 +432,24 @@ class ChatVC: ParentViewController , UITableViewDelegate , UITableViewDataSource
         self.navigationItem.hidesBackButton = true
         let newBackButton = UIBarButtonItem(title: "Back", style: UIBarButtonItemStyle.plain, target: self, action: #selector(ChatVC.backToMainVC(sender:)))
         self.navigationItem.leftBarButtonItem = newBackButton
+        
+        navigationController?.navigationBar.barTintColor = UIColor(red: 24, green: 38, blue: 48, alpha: 1)
     }
     
     func hideKeyboard()
     {
         self.view.endEditing(true)
+    }
+    
+    //MARK: - segue
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if let destination = segue.destination as? FullImageVC
+        {
+            if let imageUrl = sender as? String
+            {
+                destination.imageUrl = imageUrl
+            }
+        }
     }
 
 }

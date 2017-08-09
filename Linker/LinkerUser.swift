@@ -13,11 +13,22 @@ class LinkerUser
     var id: String!
     var fullName: String!
     var imageUrl :String?
-    var date: String?
+    var isOnline: Bool!
     
-    init(id: String , fullName: String , imageUrl: String?) {
+    init(id: String , fullName: String , imageUrl: String? ) {
         self.id = id
         self.fullName = fullName
+        
+        if imageUrl != nil
+        {
+            self.imageUrl = imageUrl!
+        }
+    }
+    
+    init(id: String , fullName: String , imageUrl: String? ,isOnline: Bool) {
+        self.id = id
+        self.fullName = fullName
+        self.isOnline = isOnline
         
         if imageUrl != nil
         {
