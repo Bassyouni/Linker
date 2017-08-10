@@ -30,3 +30,5 @@ extension UIColor {
         )
     }
 }
+
+let adMobId = "ca-app-pub-8680279546150258~8179134669"

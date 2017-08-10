@@ -49,8 +49,9 @@ class MessageCell: UITableViewCell {
             messageBgColor.backgroundColor = UIColor(red: 109.0/255, green: 228.0/255, blue: 75.0/255, alpha: 1)
             self.message.textColor = UIColor.black
             self.message.textAlignment = .left
-            rightSpaceConstraint.constant = 100
-            leftSpaceConstraint.constant = 10
+            
+            leftSpaceConstraint.constant = 100
+            rightSpaceConstraint.constant = 10
             messageBgColor.layoutIfNeeded()
             
         }
@@ -59,8 +60,9 @@ class MessageCell: UITableViewCell {
             messageBgColor.backgroundColor = UIColor(red: 57, green: 133, blue: 255)
             self.message.textColor = UIColor.white
             self.message.textAlignment = .left
-            leftSpaceConstraint.constant = 100
-            rightSpaceConstraint.constant = 10
+
+            leftSpaceConstraint.constant = 10
+            rightSpaceConstraint.constant = 100
             messageBgColor.layoutIfNeeded()
         }
     }

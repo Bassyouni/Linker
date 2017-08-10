@@ -58,5 +58,7 @@
 	<string></string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>To Send Cool Photos</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>To Send Your Location </string>
 </dict>
 </plist>

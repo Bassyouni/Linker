@@ -15,13 +15,15 @@ class Message
     private var _image: UIImage?
     private var _imageUrl: String!
     private var _userName: String!
+    private var _messageKey: String!
     
     init(){}
     
-    init(userName: String , message :String , imageUrl: String?) {
+    init(userName: String , message :String , imageUrl: String? , messageKey: String) {
         
         self._userName = userName
         self._message = message
+        self._messageKey = messageKey
         
         if imageUrl != nil
         {
@@ -30,6 +32,12 @@ class Message
         
         self._userId = nil
         self._image = nil
+    }
+    
+    var messageKey: String
+    {
+        set { _messageKey = newValue }
+        get { return _messageKey }
     }
     
     var userName: String

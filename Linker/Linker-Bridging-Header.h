@@ -4,3 +4,4 @@
 
 #import "MBProgressHUD.h"
 #import <SDWebImage/UIImageView+WebCache.h>
+#import "GeoFire.h"

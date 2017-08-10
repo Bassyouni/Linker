@@ -18,6 +18,7 @@ class ChatVC: ParentViewController , UITableViewDelegate , UITableViewDataSource
     var chat: Chat?
     var otherSideUser: LinkerUser?
     var ref: DatabaseReference!
+    var geoFire: GeoFire!
     var isNewChat: Bool = true
     var isGroupChat: Bool = false
     var imagePicker: UIImagePickerController!
@@ -55,6 +56,8 @@ class ChatVC: ParentViewController , UITableViewDelegate , UITableViewDataSource
     
         
         ref = Database.database().reference()
+        let locationRef = ref.child("location")
+        geoFire = GeoFire(firebaseRef: locationRef)
         
         // case 1 : it is a new chat
         if isNewChat && otherSideUser != nil
@@ -67,6 +70,15 @@ class ChatVC: ParentViewController , UITableViewDelegate , UITableViewDataSource
         else if !isNewChat && chat != nil && !isGroupChat
         {
             self.navigationItem.title = chat?.secondUser.fullName
+            
+            //map btnin navbar
+            let button = UIButton.init(type: .custom)
+            button.setImage(UIImage.init(named: "map"), for: UIControlState.normal)
+            button.addTarget(self, action:#selector(ChatVC.mapBtnPressed(_:)), for: UIControlEvents.touchUpInside)
+            button.frame = CGRect.init(x: 0, y: 0, width: 40, height: 40) //CGRectMake(0, 0, 30, 30)
+            let barButton = UIBarButtonItem.init(customView: button)
+            self.navigationItem.rightBarButtonItem = barButton
+            
             messages = (chat?.messages)!
             messagesFromFireBaseRealTime()
             
@@ -211,6 +223,53 @@ class ChatVC: ParentViewController , UITableViewDelegate , UITableViewDataSource
         }
     }
     
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        if !isGroupChat
+        {
+            if messages[indexPath.row].userId == currentUser.id
+            {
+                return true
+            }
+            return false
+        }
+        return false
+    }
+    
+//    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+//        if editingStyle == .delete
+//        {
+//            if messages[indexPath.row].userId == currentUser.id
+//            {
+//                
+//            }
+//        }
+//    }
+    
+    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
+        let messageRef = ref.child("chats").child((chat?.chatId)!).child("messages").child(messages[indexPath.row].messageKey)
+        
+        let editAction = UITableViewRowAction(style: .default, title: "Edit", handler: { (action, indexPath) in
+            let alert = UIAlertController(title: "", message: "Edit list item", preferredStyle: .alert)
+            alert.addTextField(configurationHandler: { (textField) in
+                textField.text = self.messages[indexPath.row].message
+            })
+            
+            alert.addAction(UIAlertAction(title: "Update", style: .default, handler: { (updateAction) in
+                self.messages[indexPath.row].message = alert.textFields!.first!.text!
+                messageRef.updateChildValues(self.messages[indexPath.row].toDictonary())
+            }))
+            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+            self.present(alert, animated: false)
+        })
+        
+        let deleteAction = UITableViewRowAction(style: .default, title: "Delete", handler: { (action, indexPath) in
+            
+            messageRef.removeValue()
+        })
+        
+        return [deleteAction, editAction]
+    }
+    
     //MARK: - ibActions
     @IBAction func sendBtnPressed(_ sender: Any) {
         self.sendMessage()
@@ -222,6 +281,35 @@ class ChatVC: ParentViewController , UITableViewDelegate , UITableViewDataSource
     }
     
     
+    @IBAction func mapBtnPressed(_ sender: Any) {
+        let tempUser: LinkerUser!
+        if chat?.firstUser.id == currentUser.id
+        {
+            tempUser = chat?.firstUser
+        }
+        else if chat?.secondUser.id == currentUser.id
+        {
+            tempUser = chat?.secondUser
+        }
+        else
+        {
+            print("chatVC , map something wrong in mapBtnPressed")
+            return
+        }
+        
+        geoFire.getLocationForKey(tempUser.id, withCallback: { (location, error) in
+            if (error != nil) {
+                print("An error occurred getting the location ")
+            } else if (location != nil) {
+
+                self.openMapsWithCordinates(currentLocation: location!)
+                
+            } else {
+                print("GeoFire does not contain a location for \"firebase-hq\"")
+            }
+        })
+        
+    }
     //MARK: - Messages Sending Functions
     func sendMessage()
     {
@@ -439,6 +527,25 @@ class ChatVC: ParentViewController , UITableViewDelegate , UITableViewDataSource
     func hideKeyboard()
     {
         self.view.endEditing(true)
+    }
+    
+    //MARK: -  open map
+    func openMapsWithCordinates(currentLocation: CLLocation)
+    {
+        var place: MKPlacemark!
+        if #available(iOS 10.0, *) {
+            place = MKPlacemark(coordinate: currentLocation.coordinate)
+        } else {
+            place = MKPlacemark(coordinate: currentLocation.coordinate, addressDictionary: nil)
+        }
+        let destination = MKMapItem(placemark: place)
+        destination.name = chat?.secondUser.fullName
+        let regionDistance: CLLocationDistance = 1000
+        let regionSpan = MKCoordinateRegionMakeWithDistance(currentLocation.coordinate, regionDistance, regionDistance)
+        
+        let options = [MKLaunchOptionsMapCenterKey: NSValue(mkCoordinate: regionSpan.center), MKLaunchOptionsMapSpanKey:  NSValue(mkCoordinateSpan: regionSpan.span), MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving] as [String : Any]
+        
+        MKMapItem.openMaps(with: [destination], launchOptions: options)
     }
     
     //MARK: - segue

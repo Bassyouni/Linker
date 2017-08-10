@@ -100,6 +100,8 @@ class LandingVC: ParentViewController {
                 self.ref.child("users").child(currentUser.id!).setValue(currentUser.makeDict())
             }
             
+            
+            
             self.hideLoading()
             self.makeSegueToMainVC()
             

@@ -9,47 +9,68 @@
 import UIKit
 import FacebookCore
 import Firebase
+import CoreLocation
+import GoogleMobileAds
 
-class MainVC: UITableViewController {
+class MainVC: ParentViewController , CLLocationManagerDelegate , UITableViewDelegate , UITableViewDataSource , GADBannerViewDelegate{
     
     //MARK: - variables
     var ref: DatabaseReference!
+    var geoFire : GeoFire!
     var chatSections = ["Group" , "Individual"]
     var currentUserChats = [Chat]()
     var groupChat :Chat!
-    var hud : MBProgressHUD!
+    let locationManger = CLLocationManager()
 
+    @IBOutlet weak var bannerView: GADBannerView!
+    @IBOutlet weak var tableView: UITableView!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        tableView.delegate = self
+        tableView.dataSource = self
         ref = Database.database().reference()
+        let locationRef = ref.child("location")
+        geoFire = GeoFire(firebaseRef: locationRef)
         self.showLoading()
         self.firebaseOnlineOfflineCap()
         self.grabDataFromFireBase()
         self.grabGroupChatMessages()
+        
+        locationManger.delegate = self
+        locationManger.desiredAccuracy = kCLLocationAccuracyBest
+        locationManger.requestWhenInUseAuthorization()
+        locationManger.startMonitoringSignificantLocationChanges()
 
-    
+        bannerView.adUnitID = "ca-app-pub-8680279546150258/7580191259"
+        bannerView.rootViewController = self
+        let request: GADRequest = GADRequest()
+        request.testDevices = [ kGADSimulatorID ]
+        bannerView.load(request)
+        
+        
     }
     
-    deinit {
-        print("dead!!! **************************************")
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        self.locationAuthStatus()
     }
     
-    
-    
-    //MARK: - progress hud
-    func showLoading()
+    func locationAuthStatus()
     {
-        //self.view.alpha = 0.5
-        //self.view.backgroundColor = UIColor.blackColor()
-        self.hud = MBProgressHUD.showAdded(to: self.view, animated: true)
-        hud.mode = MBProgressHUDModeIndeterminate
+        if CLLocationManager.authorizationStatus() == .authorizedWhenInUse
+        {
+            geoFire.setLocation(locationManger.location, forKey: currentUser.id)
+        }
+        else
+        {
+            locationManger.requestWhenInUseAuthorization()
+            locationAuthStatus()
+        }
     }
     
-    func hideLoading()
-    {
-        //self.view.alpha = 1.0
-        self.hud.hide(true)
-    }
+    
     
     
     //MARK: - Firebase grabbing data
@@ -127,16 +148,16 @@ class MainVC: UITableViewController {
 
     // MARK: - Table view data source
 
-    override func numberOfSections(in tableView: UITableView) -> Int {
+     func numberOfSections(in tableView: UITableView) -> Int {
         // #warning Incomplete implementation, return the number of sections
         return chatSections.count
     }
     
-    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         return chatSections[section]
     }
 
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+      func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
         if section == 0
         {
@@ -145,7 +166,7 @@ class MainVC: UITableViewController {
         return currentUserChats.count
     }
     
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         if indexPath.section == 0
         {
@@ -184,7 +205,7 @@ class MainVC: UITableViewController {
         return UITableViewCell()
     }
     
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath)
+     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath)
     {
         if indexPath.section == 0
         {
@@ -194,12 +215,31 @@ class MainVC: UITableViewController {
         {
             performSegue(withIdentifier:"ChatVC", sender: currentUserChats[indexPath.row] )
         }
-        
-    
-        
-    
+
         
    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 80.0
+    }
+    
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        if indexPath.section == 1
+        {
+            return true
+        }
+        return false
+    }
+    
+        func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+            if editingStyle == .delete
+            {
+                let chatRef = ref.child("chats").child(currentUserChats[indexPath.row].chatId)
+                chatRef.removeValue()
+                currentUserChats.remove(at: indexPath.row)
+            }
+        }
+    
  
     //MARK: - ibactions
 
@@ -272,6 +312,9 @@ class MainVC: UITableViewController {
             lastOnlineRef.onDisconnectSetValue(ServerValue.timestamp())
         })
     }
+    
+    //MARK: - add Location to firebase and init location
+    
     
     
     

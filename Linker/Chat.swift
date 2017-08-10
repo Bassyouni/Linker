@@ -31,7 +31,7 @@ class Chat
                 
                 tempMessage.message = (messagesArrayDict?[key]?["message"]!)!
                 tempMessage.userId = (messagesArrayDict?[key]?["userId"]!)!
-                
+                tempMessage.messageKey = key
                 if messagesArrayDict?[key]?["imageUrl"] != nil
                 {
                     tempMessage.imageUrl = (messagesArrayDict?[key]?["imageUrl"]!)!
@@ -74,6 +74,7 @@ class Chat
                 
                 tempMessage.message = (messagesArrayDict?[key]?["message"]!)!
                 tempMessage.userName = (messagesArrayDict?[key]?["fullName"]!)!
+                tempMessage.messageKey = key
                 
                 if messagesArrayDict?[key]?["imageUrl"] != nil
                 {

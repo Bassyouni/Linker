@@ -10,6 +10,7 @@ import UIKit
 import Firebase
 import FirebaseAuth
 import FBSDKCoreKit
+import AdSupport
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -23,6 +24,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         FBSDKApplicationDelegate.sharedInstance().application(application, didFinishLaunchingWithOptions: launchOptions)
         
         FirebaseApp.configure()
+        
+        // Initialize the Google Mobile Ads SDK.
+        
+        
         return true
     }
     
