@@ -15,6 +15,7 @@ class ActivityCell: UITableViewCell {
     @IBOutlet weak var lastSentMessage: UILabel!
     @IBOutlet weak var userName: UILabel!
     @IBOutlet weak var userImage: UIImageView!
+    @IBOutlet weak var onlineOfflineImage: UIImageView!
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -31,6 +32,30 @@ class ActivityCell: UITableViewCell {
         
         userName.text = chat.secondUser.fullName!
         userImage.sd_setImage(with: URL(string:chat.secondUser.imageUrl! ))
+        
+        if chat.firstUser.id == currentUser.id
+        {
+            if chat.secondUser.isOnline
+            {
+                onlineOfflineImage.image = UIImage(named: "online")
+            }
+            else
+            {
+                onlineOfflineImage.image = UIImage(named: "offline")
+            }
+        }
+        else
+        {
+            if chat.firstUser.isOnline
+            {
+                onlineOfflineImage.image = UIImage(named: "online")
+            }
+            else
+            {
+                onlineOfflineImage.image = UIImage(named: "offline")
+            }
+        }
+        
     }
     
     func configureGroupChatCell(groupChat:Chat , name: String)

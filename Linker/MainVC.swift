@@ -86,10 +86,20 @@ class MainVC: ParentViewController , CLLocationManagerDelegate , UITableViewDele
             self.currentUserChats.removeAll()
             for (key,value) in dic
             {
+                //presence Control
+                var isOnline = false
+                
                 if value["firstUser"]?["id"] as? String == currentUser.id
                 {
+                    let isOnlineRef = postDict["users"]?[value["secondUser"]?["id"]] as? [String : AnyObject]
+                    
+                    
+                    if isOnlineRef?["connections"] != nil
+                    {
+                        isOnline = true
+                    }
                     let firstUser = LinkerUser(id:value["firstUser"]?["id"] as! String , fullName: value["firstUser"]?["fullName"] as! String, imageUrl: value["firstUser"]?["imageUrl"] as? String)
-                    let secondUser = LinkerUser(id: value["secondUser"]?["id"] as! String, fullName: value["secondUser"]?["fullName"] as! String, imageUrl: value["secondUser"]?["imageUrl"] as? String)
+                    let secondUser = LinkerUser(id: value["secondUser"]?["id"] as! String, fullName: value["secondUser"]?["fullName"] as! String, imageUrl: value["secondUser"]?["imageUrl"] as? String ,isOnline: isOnline)
                     
                     
                     let chat: Chat!
@@ -107,7 +117,13 @@ class MainVC: ParentViewController , CLLocationManagerDelegate , UITableViewDele
                 }
                 else if value["secondUser"]?["id"] as? String == currentUser.id
                 {
-                    let firstUser = LinkerUser(id:value["firstUser"]?["id"] as! String , fullName: value["firstUser"]?["fullName"] as! String, imageUrl: value["firstUser"]?["imageUrl"] as? String)
+                    let isOnlineRef = postDict["users"]?[value["firstUser"]?["id"]] as? [String : AnyObject]
+                    if isOnlineRef?["connections"] != nil
+                    {
+                        isOnline = true
+                    }
+                    
+                    let firstUser = LinkerUser(id:value["firstUser"]?["id"] as! String , fullName: value["firstUser"]?["fullName"] as! String, imageUrl: value["firstUser"]?["imageUrl"] as? String, isOnline: isOnline)
                     let secondUser = LinkerUser(id: value["secondUser"]?["id"] as! String, fullName: value["secondUser"]?["fullName"] as! String, imageUrl: value["secondUser"]?["imageUrl"] as? String)
                     
                     let chat: Chat!
@@ -246,6 +262,9 @@ class MainVC: ParentViewController , CLLocationManagerDelegate , UITableViewDele
     @IBAction func signOutBtnPressed(_ sender: Any) {
         AccessToken.current = nil
         
+        let myConnectionsRef = Database.database().reference(withPath: "users/\(currentUser.id!)/connections")
+        myConnectionsRef.removeValue()
+        
         let delegate = UIApplication.shared.delegate as? AppDelegate
         let loginPage = self.storyboard?.instantiateViewController(withIdentifier: "LandingVC")
         
@@ -313,14 +332,5 @@ class MainVC: ParentViewController , CLLocationManagerDelegate , UITableViewDele
         })
     }
     
-    //MARK: - add Location to firebase and init location
-    
-    
-    
-    
-    
-    
-    
-    
-    
+   
 }

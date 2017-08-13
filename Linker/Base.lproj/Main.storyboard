@@ -451,24 +451,33 @@
                                                     </constraints>
                                                 </imageView>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="hanzbotha" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zsJ-0c-ZH2">
-                                                    <rect key="frame" x="84" y="43" width="283" height="18"/>
+                                                    <rect key="frame" x="84" y="43" width="253" height="18"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Islam Imam" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="sGt-1h-o9i">
-                                                    <rect key="frame" x="76" y="8" width="291" height="24"/>
+                                                    <rect key="frame" x="76" y="8" width="261" height="24"/>
                                                     <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="20"/>
                                                     <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="zNq-dO-9Rf">
+                                                    <rect key="frame" x="342" y="28" width="25" height="25"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="height" constant="25" id="nCF-iI-lOA"/>
+                                                        <constraint firstAttribute="width" constant="25" id="na8-i0-W4f"/>
+                                                    </constraints>
+                                                </imageView>
                                             </subviews>
                                             <constraints>
-                                                <constraint firstItem="sGt-1h-o9i" firstAttribute="trailing" secondItem="iBm-gN-rNw" secondAttribute="trailingMargin" id="A9z-Yi-ZeC"/>
+                                                <constraint firstItem="zNq-dO-9Rf" firstAttribute="centerY" secondItem="iBm-gN-rNw" secondAttribute="centerY" id="5X2-sf-Ybo"/>
+                                                <constraint firstItem="zNq-dO-9Rf" firstAttribute="trailing" secondItem="iBm-gN-rNw" secondAttribute="trailingMargin" id="90G-HG-3ci"/>
+                                                <constraint firstItem="sGt-1h-o9i" firstAttribute="trailing" secondItem="iBm-gN-rNw" secondAttribute="trailingMargin" constant="-30" id="A9z-Yi-ZeC"/>
                                                 <constraint firstAttribute="bottomMargin" secondItem="zsJ-0c-ZH2" secondAttribute="bottom" constant="10" id="E2L-WL-NUy"/>
                                                 <constraint firstItem="sGt-1h-o9i" firstAttribute="top" secondItem="iBm-gN-rNw" secondAttribute="topMargin" id="LJv-w9-iAi"/>
                                                 <constraint firstItem="JpX-5h-Zro" firstAttribute="top" secondItem="iBm-gN-rNw" secondAttribute="topMargin" id="aod-U3-QKF"/>
-                                                <constraint firstItem="zsJ-0c-ZH2" firstAttribute="trailing" secondItem="iBm-gN-rNw" secondAttribute="trailingMargin" id="c9R-fm-Sys"/>
+                                                <constraint firstItem="zsJ-0c-ZH2" firstAttribute="trailing" secondItem="iBm-gN-rNw" secondAttribute="trailingMargin" constant="-30" id="c9R-fm-Sys"/>
                                                 <constraint firstItem="JpX-5h-Zro" firstAttribute="leading" secondItem="iBm-gN-rNw" secondAttribute="leadingMargin" id="utT-uN-FkB"/>
                                                 <constraint firstItem="zsJ-0c-ZH2" firstAttribute="leading" secondItem="JpX-5h-Zro" secondAttribute="trailing" constant="16" id="wLp-og-EXr"/>
                                                 <constraint firstItem="sGt-1h-o9i" firstAttribute="leading" secondItem="JpX-5h-Zro" secondAttribute="trailing" constant="8" id="zjA-gk-vRh"/>
@@ -476,6 +485,7 @@
                                         </tableViewCellContentView>
                                         <connections>
                                             <outlet property="lastSentMessage" destination="zsJ-0c-ZH2" id="Mra-Db-lUD"/>
+                                            <outlet property="onlineOfflineImage" destination="zNq-dO-9Rf" id="Axo-aq-xTY"/>
                                             <outlet property="userImage" destination="JpX-5h-Zro" id="Ou1-tg-9Si"/>
                                             <outlet property="userName" destination="sGt-1h-o9i" id="nFM-Dx-0ol"/>
                                         </connections>
