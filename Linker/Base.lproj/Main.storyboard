@@ -193,15 +193,15 @@
                                 <rect key="frame" x="0.0" y="65" width="375" height="517"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="MessageCell" rowHeight="75" id="go6-sm-wyi" customClass="MessageCell" customModule="Linker" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="28" width="375" height="75"/>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="MessageCell" rowHeight="115" id="go6-sm-wyi" customClass="MessageCell" customModule="Linker" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="28" width="375" height="115"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="go6-sm-wyi" id="kwF-cq-iWH">
-                                            <rect key="frame" x="0.0" y="0.0" width="375" height="75"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="115"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="u45-38-XZq">
-                                                    <rect key="frame" x="10" y="10" width="355" height="37.5"/>
+                                                    <rect key="frame" x="10" y="5" width="355" height="37.5"/>
                                                     <subviews>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fAN-N3-cAp">
                                                             <rect key="frame" x="20" y="5" width="315" height="27.5"/>
@@ -232,8 +232,8 @@
                                             <constraints>
                                                 <constraint firstAttribute="trailing" secondItem="u45-38-XZq" secondAttribute="trailing" constant="10" id="ITH-db-wXa"/>
                                                 <constraint firstItem="u45-38-XZq" firstAttribute="leading" secondItem="kwF-cq-iWH" secondAttribute="leading" constant="10" id="Unn-Ps-0Da"/>
-                                                <constraint firstAttribute="bottom" secondItem="u45-38-XZq" secondAttribute="bottom" constant="27.5" id="YGV-4d-fFw"/>
-                                                <constraint firstItem="u45-38-XZq" firstAttribute="top" secondItem="kwF-cq-iWH" secondAttribute="top" constant="10" id="wKq-Dm-z8n"/>
+                                                <constraint firstAttribute="bottom" secondItem="u45-38-XZq" secondAttribute="bottom" constant="5" id="YGV-4d-fFw"/>
+                                                <constraint firstItem="u45-38-XZq" firstAttribute="top" secondItem="kwF-cq-iWH" secondAttribute="top" constant="5" id="wKq-Dm-z8n"/>
                                             </constraints>
                                         </tableViewCellContentView>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
@@ -247,7 +247,7 @@
                                         </connections>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="GroupChatCell" rowHeight="85" id="JPo-AJ-Ubn" customClass="GroupChatCell" customModule="Linker" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="103" width="375" height="85"/>
+                                        <rect key="frame" x="0.0" y="143" width="375" height="85"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="JPo-AJ-Ubn" id="kLh-8H-12i">
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="85"/>

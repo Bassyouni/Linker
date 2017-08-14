@@ -47,6 +47,7 @@ class GroupChatCell: UITableViewCell {
             self.name.text = message.userName
         }
         
+        let constraintConstant = self.contentView.frame.width -  (self.message.font.sizeOfString(string: message.message, constrainedToWidth: 200).width + 60)
         
         if message.userName == currentUser.fullName
         {

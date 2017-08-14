@@ -31,4 +31,13 @@ extension UIColor {
     }
 }
 
+extension UIFont {
+    func sizeOfString (string: String, constrainedToWidth width: Double) -> CGSize {
+        return NSString(string: string).boundingRect(with: CGSize(width: width, height: Double.greatestFiniteMagnitude),options: NSStringDrawingOptions.usesLineFragmentOrigin,
+                                                             attributes: [NSFontAttributeName: self],
+                                                             context: nil).size
+    }
+}
+
+
 let adMobId = "ca-app-pub-8680279546150258~8179134669"
